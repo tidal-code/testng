@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.tidal-code</groupId>
-    <artifactId>testng</artifactId>
+    <artifactId>wave-testng</artifactId>
     <version>0.0.1</version>
     <name>Tidal TestNG Support</name>
     <description>TestNG Support for Tidal Framework</description>
@@ -21,7 +21,7 @@
     <developers>
         <developer>
             <name>Nithin GG</name>
-            <email>nithingg@hotmail.com</email>
+            <email>mailnithingg@gmail.com</email>
             <organization>Tidal-Code</organization>
             <organizationUrl>https://github.com/tidal-code</organizationUrl>
         </developer>
