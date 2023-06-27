@@ -1,11 +1,11 @@
 package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.propertieshandler.Config;
+import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
-import com.tidal.wave.propertieshandler.Config;
-import com.tidal.wave.propertieshandler.PropertiesFinder;
 import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -17,11 +17,8 @@ import org.testng.ITestResult;
 import java.time.Duration;
 import java.util.Arrays;
 
+import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
-import static com.tidal.wave.utils.CheckString.isNullOrEmpty;
-
-
-
 
 
 public class TestListener implements ITestListener {
@@ -70,14 +67,11 @@ public class TestListener implements ITestListener {
             try {
                 if (isUiTest(result))
                     close();
-
             } finally {
                 new ErrorStack().execute();
             }
         }
     }
-
-
 
 
     @Override
