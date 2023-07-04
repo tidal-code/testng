@@ -1,6 +1,7 @@
 package testngcore;
 
 
+import com.tidal.wave.propertieshandler.Config;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
 
@@ -12,10 +13,10 @@ import java.lang.reflect.Method;
  * without specifying it in annotation list of each test method
  */
 public class AnnotationTransformer implements IAnnotationTransformer {
-
     @Override
     public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        if (annotation.getRetryAnalyzerClass() != null)
+        if (Config.RETRY_FAILED_TESTS) {
             annotation.setRetryAnalyzer(RetryAnalyzer.class);
+        }
     }
 }

@@ -1,31 +1,34 @@
 package com.tidal.tests;
 
-import com.tidal.wave.exceptions.RuntimeTestException;
+import com.tidal.actions.HomeActions;
+import com.tidal.actions.SearchActions;
+import com.tidal.flow.assertions.Assert;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Story;
 import org.testng.annotations.Test;
+
+import static com.tidal.actions.ProductDetailsAction.getProductTitle;
 
 public class Tester {
 
-    @Test(groups ={ "SmokeTest","RegressionTest"})
-    public void testMethod(){
+    @Story("Test JIRA ID - Search")
+    @Test(groups ={ "SmokeTest","RegressionTest"},description = "Test to verify search navigation")
+    public void testSearchNavigation(){
+        HomeActions.searchForItem("Shampoo");
+        SearchActions.selectFromSearchResults(4);
+        Assert.verify("Verify product title in PDP page ",getProductTitle()).contains("Shampoo");
 
-        System.out.println("This is a test");
     }
 
-    @Test(groups ={ "SmokeTest","RegressionTest","uitest"})
-    public void testUiMethod(){
 
-        System.out.println("This is a UI test");
+    @Story("Test JIRA ID - Search")
+    @Test(groups ={ "SmokeTest","RegressionTest"},description = "Test to verify search navigation")
+    public void testCartNavigation(){
+        HomeActions.searchForItem("water bottle");
+        SearchActions.selectFromSearchResults(4);
+        Allure.step("Verify the product title in PDP page");
+        Assert.verify("Verify product title in PDP page ",getProductTitle()).contains("Bottle");
+
     }
 
-    @Test(groups ={ "SmokeTest","RegressionTest","uitest"})
-    public void testAnotherUiMethod(){
-
-        System.out.println("This is a another UI test");
-    }
-
-    @Test(groups ={ "SmokeTest","RegressionTest","uitest"})
-    public void testFailingMethod(){
-        System.out.println("This is a failing UI test");
-        throw new RuntimeTestException("Test Failure");
-    }
 }

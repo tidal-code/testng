@@ -14,14 +14,12 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.util.Arrays;
 
 import static com.tidal.wave.browser.Browser.close;
 import static com.tidal.wave.utils.CheckString.isNullOrEmpty;
-
-
-
 
 
 public class TestListener implements ITestListener {
@@ -64,21 +62,26 @@ public class TestListener implements ITestListener {
     @Override
     public void onTestFailure(ITestResult result) {
         try {
-            if (isUiTest(result))
-                saveScreenShot(result.getName());
-        } finally {
-            try {
-                if (isUiTest(result))
-                    close();
-
-            } finally {
-                new ErrorStack().execute();
+            if (isUiTest(result)) {
+                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
+                close();
             }
+
+        } finally {
+            new ErrorStack().execute();
         }
     }
 
+    @Override
+    public void onTestSkipped(ITestResult result) {
+        try {
+            if (isUiTest(result))
+                close();
 
-
+        } finally {
+            new ErrorStack().execute();
+        }
+    }
 
     @Override
     public void onTestSuccess(ITestResult result) {
@@ -91,16 +94,15 @@ public class TestListener implements ITestListener {
     }
 
 
+
     @Override
     public void onFinish(ITestContext context) {
 
-        System.out.println("Finished all tests");
     }
 
     @Override
     public void onStart(ITestContext context) {
 
-        System.out.println("Starting test suite");
     }
 
     private AbstractDriverOptions<?> setLocalOptions(String browserType) {
@@ -112,19 +114,16 @@ public class TestListener implements ITestListener {
     }
 
 
-    private boolean isUiTest(ITestResult result) {
+    public boolean isUiTest(ITestResult result) {
         return Arrays.stream(result.getMethod().getGroups())
-                .anyMatch(group -> group.contains("uitest"));
-    }
-
-    private void saveScreenShot(String testName) {
-        byte[] screenShot = getScreenshot();
-        Allure.getLifecycle().addAttachment("Image Attachment" + testName, "image/png", "png", screenShot);
+                .noneMatch(group -> group.contains("apiTest")||group.contains("dbTest"));
     }
 
     private byte[] getScreenshot() {
+
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
+
 
 
 }
