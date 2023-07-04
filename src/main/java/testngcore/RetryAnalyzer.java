@@ -1,6 +1,6 @@
 package testngcore;
 
-import com.tidal.wave.propertieshandler.PropertiesFinder;
+import com.tidal.utils.propertieshandler.PropertiesFinder;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
@@ -14,8 +14,7 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 
     @Override
     public boolean retry(ITestResult iTestResult) {
-        if(counter < retryLimit)
-        {
+        if (counter < retryLimit) {
             counter++;
             return true;
         }
