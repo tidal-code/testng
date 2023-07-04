@@ -1,11 +1,11 @@
 package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.propertieshandler.Config;
+import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
-import com.tidal.wave.propertieshandler.Config;
-import com.tidal.wave.propertieshandler.PropertiesFinder;
 import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -18,8 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.util.Arrays;
 
+import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
-import static com.tidal.wave.utils.CheckString.isNullOrEmpty;
 
 
 public class TestListener implements ITestListener {
@@ -55,7 +55,6 @@ public class TestListener implements ITestListener {
             }
 
         }
-
     }
 
 
@@ -94,7 +93,6 @@ public class TestListener implements ITestListener {
     }
 
 
-
     @Override
     public void onFinish(ITestContext context) {
 
@@ -116,14 +114,13 @@ public class TestListener implements ITestListener {
 
     public boolean isUiTest(ITestResult result) {
         return Arrays.stream(result.getMethod().getGroups())
-                .noneMatch(group -> group.contains("apiTest")||group.contains("dbTest"));
+                .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
     }
 
     private byte[] getScreenshot() {
 
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
-
 
 
 }

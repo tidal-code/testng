@@ -1,7 +1,7 @@
 package testngcore;
 
 
-import com.tidal.wave.propertieshandler.Config;
+import com.tidal.wave.config.Config;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
 
