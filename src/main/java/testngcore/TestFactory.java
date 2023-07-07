@@ -9,19 +9,24 @@ import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 
 
 /**
  * TestFactory class is used to generate the testng runner dynamically without testng xml file
  */
 public class TestFactory implements ITestRunnerFactory {
+
     @Override
     public TestRunner newTestRunner(ISuite iSuite, XmlTest xmlTest, Collection<IInvokedMethodListener> collection, List<IClassListener> list) {
         try {
-            String[] includedTestGroups = PropertiesFinder.getProperty("testIncludedGroups").split(",");
-            String[] excludedTestGroups = PropertiesFinder.getProperty("testExcludedGroups").split(",");
+            List<String> includedGroups=getIncludedTestGroups();
+            List<String> excludedGroups=new ArrayList<>(List.of("ignore","wip"));
             String[] packagesToRun = PropertiesFinder.getProperty("testPackageNames").split(",");
             int threadCount = Integer.parseInt(PropertiesFinder.getProperty("threadCount"));
             int dataProviderThreadCount = Integer.parseInt(PropertiesFinder.getProperty("dataProviderThreadCount"));
@@ -31,12 +36,8 @@ public class TestFactory implements ITestRunnerFactory {
             xmlSuite.setDataProviderThreadCount(dataProviderThreadCount);
             xmlSuite.setName(PropertiesFinder.getProperty("testSuiteName"));
             XmlTest test = new XmlTest(xmlSuite);
-            for (String testGroup : includedTestGroups) {
-                test.addIncludedGroup(testGroup);
-            }
-            for (String testGroup : excludedTestGroups) {
-                test.addExcludedGroup(testGroup);
-            }
+            test.setIncludedGroups(includedGroups);
+            test.setExcludedGroups(excludedGroups);
             ArrayList<XmlPackage> xmlPackages = new ArrayList<XmlPackage>();
             for (String eachPackage : packagesToRun) {
                 xmlPackages.add(new XmlPackage(eachPackage));
@@ -44,8 +45,17 @@ public class TestFactory implements ITestRunnerFactory {
             test.setPackages(xmlPackages);
             return new TestRunner(new Configuration(), iSuite, test, true, collection, list);
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new RuntimeTestException("Unable to generate testng runner, exception " + ex.getMessage());
         }
+    }
+
+    private List<String> getIncludedTestGroups(){
+        String[] testTags = {PropertiesFinder.getProperty("tagName"), PropertiesFinder.getProperty("tagNameTwo"), PropertiesFinder.getProperty("tagNameThree")};
+        return Arrays.stream(testTags)
+                .filter(value -> !isNullOrEmpty(value))
+                .collect(Collectors.toList());
+
     }
 
 }

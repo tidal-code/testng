@@ -22,12 +22,12 @@ public class Tester {
 
 
     @Story("Test JIRA ID - Search")
-    @Test(groups ={ "SmokeTest","RegressionTest"},description = "Test to verify search navigation")
+    @Test(groups ={ "SmokeTest","RegressionTest","specific"},description = "Test to verify search navigation")
     public void testCartNavigation(){
         HomeActions.searchForItem("water bottle");
         SearchActions.selectFromSearchResults(4);
         Allure.step("Verify the product title in PDP page");
-        Assert.verify("Verify product title in PDP page ",getProductTitle()).contains("Bottle");
+        Assert.verify("Verify product title in PDP page ",getProductTitle()).contains("Shruti");
 
     }
 

@@ -1,8 +1,12 @@
 package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.exceptions.AzureOperationsException;
+import com.tidal.utils.loggers.Logger;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
+import com.tidal.utils.report.ReportBuilder;
+import com.tidal.utils.report.Reporter;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
@@ -12,11 +16,13 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
+import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
@@ -62,6 +68,7 @@ public class TestListener implements ITestListener {
     public void onTestFailure(ITestResult result) {
         try {
             if (isUiTest(result)) {
+                Logger.info(TestListener.class,"Attaching screenshot");
                 Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
                 close();
             }
@@ -95,6 +102,14 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onFinish(ITestContext context) {
+        Iterator<ITestResult> skippedTestCases = context.getSkippedTests().getAllResults().iterator();
+        while (skippedTestCases.hasNext()) {
+            ITestResult skippedTestCase = skippedTestCases.next();
+            ITestNGMethod method = skippedTestCase.getMethod();
+            if (context.getSkippedTests().getResults(method).size() > 0) {
+                skippedTestCases.remove();
+            }
+        }
 
     }
 
@@ -118,7 +133,7 @@ public class TestListener implements ITestListener {
     }
 
     private byte[] getScreenshot() {
-
+        Logger.info(TestListener.class,"Taking screenshot");
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
