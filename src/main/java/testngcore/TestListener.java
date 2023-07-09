@@ -68,8 +68,8 @@ public class TestListener implements ITestListener {
     public void onTestFailure(ITestResult result) {
         try {
             if (isUiTest(result)) {
-                Logger.info(TestListener.class,"Attaching screenshot");
-                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
+              /*  Logger.info(TestListener.class,"Attaching screenshot");
+                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");*/
                 close();
             }
 
@@ -130,11 +130,6 @@ public class TestListener implements ITestListener {
     public boolean isUiTest(ITestResult result) {
         return Arrays.stream(result.getMethod().getGroups())
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
-    }
-
-    private byte[] getScreenshot() {
-        Logger.info(TestListener.class,"Taking screenshot");
-        return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
 
