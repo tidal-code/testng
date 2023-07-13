@@ -64,8 +64,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
                 System.out.println("Inside test listner=====================================================================================================================");
                 System.out.println("Setting description to "+testCaseName);
                 String currentDescription = result.getMethod().getDescription();
-                result.getMethod().setDescription(currentDescription+"-"+testCaseName);
-                AllureUtils.updateTestCaseNameWithDataProvider(testCaseName);
+                //result.getMethod().setDescription(currentDescription+"-"+testCaseName);
             }
         }
         if (isUiTest(result)) {
@@ -101,6 +100,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
+        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
         try {
             if (isUiTest(result)) {
                 Logger.info(TestListener.class,"Attaching screenshot");
@@ -119,6 +119,8 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
+        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
+
         try {
             if (isUiTest(result))
                 close();
@@ -130,6 +132,8 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestSuccess(ITestResult result) {
+        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
+
         try {
             if (isUiTest(result))
                 close();

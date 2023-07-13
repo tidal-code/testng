@@ -45,6 +45,7 @@ public class Tester {
 
     @Test(description = "To test data provider", dataProvider = "testData", groups = {"testDataTEST","RegressionTest"})
     public void dummyTest(SearchData searchData){
+        AllureUtils.updateTestCaseNameWithDataProvider(searchData.testCaseName);
         System.out.println("This is for "+searchData.name+" "+searchData.age);
         int number= RandomUtils.nextInt(0,3);
         Assert.verify("Verifying "+number,number).isEqualTo(searchData.age);
