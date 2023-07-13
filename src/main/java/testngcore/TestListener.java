@@ -2,6 +2,9 @@ package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
 import com.tidal.utils.exceptions.AzureOperationsException;
+import com.tidal.utils.filehandlers.FileReader;
+import com.tidal.utils.filehandlers.Finder;
+import com.tidal.utils.json.JsonReader;
 import com.tidal.utils.loggers.Logger;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
@@ -11,28 +14,60 @@ import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
 import io.qameta.allure.Allure;
+import io.qameta.allure.AllureLifecycle;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
-import org.testng.ITestContext;
-import org.testng.ITestListener;
-import org.testng.ITestNGMethod;
-import org.testng.ITestResult;
+import org.testng.*;
+import utils.AllureUtils;
+import utils.FileFinder;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
-public class TestListener implements ITestListener {
+public class TestListener implements ITestListener, IInvokedMethodListener {
 
 
     @Override
     public void onTestStart(ITestResult result) {
+        String testCaseName = null;
+        if (result.getMethod().isDataDriven()) {
+            Object dataProviderObject = result.getParameters()[0];
+
+            if (dataProviderObject instanceof String) {
+                testCaseName = dataProviderObject.toString();
+            } else {
+                try {
+                    Field field = dataProviderObject.getClass().getDeclaredField("testCaseName");
+                    field.setAccessible(true);
+                    testCaseName = (String) field.get(dataProviderObject);
+                    System.out.println("Test case name is " + testCaseName);
+                } catch (IllegalAccessException | NoSuchFieldException ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+            if (!isNullOrEmpty(testCaseName)) {
+                System.out.println("Inside test listner=====================================================================================================================");
+                System.out.println("Setting description to "+testCaseName);
+                String currentDescription = result.getMethod().getDescription();
+                result.getMethod().setDescription(currentDescription+"-"+testCaseName);
+                AllureUtils.updateTestCaseNameWithDataProvider(testCaseName);
+            }
+        }
         if (isUiTest(result)) {
             String browser = Config.BROWSER_NAME;
 
@@ -68,14 +103,18 @@ public class TestListener implements ITestListener {
     public void onTestFailure(ITestResult result) {
         try {
             if (isUiTest(result)) {
-              /*  Logger.info(TestListener.class,"Attaching screenshot");
-                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");*/
+                Logger.info(TestListener.class,"Attaching screenshot");
+                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
                 close();
             }
 
         } finally {
             new ErrorStack().execute();
         }
+    }
+
+    private byte[] getScreenshot(){
+        return ((TakesScreenshot)Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
     @Override
@@ -110,7 +149,13 @@ public class TestListener implements ITestListener {
                 skippedTestCases.remove();
             }
         }
-
+        List<String> fileNames = FileFinder.findFile("-result.json", Paths.get("target"));
+        fileNames.parallelStream().forEach(fileName -> {
+            String jsonValue = FileReader.readFileToString(fileName, Paths.get("target"));
+            if (jsonValue.contains("parameters\":[{\"name\"") && jsonValue.contains("\"status\":\"skipped\"")) {
+                FileFinder.deleteFile(fileName, Paths.get("target"));
+            }
+        });
     }
 
     @Override
@@ -128,9 +173,11 @@ public class TestListener implements ITestListener {
 
 
     public boolean isUiTest(ITestResult result) {
-        return Arrays.stream(result.getMethod().getGroups())
+        boolean flag= Arrays.stream(result.getMethod().getGroups())
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
+        return flag;
     }
 
-
 }
+
+

@@ -5,7 +5,10 @@ import com.tidal.actions.SearchActions;
 import com.tidal.flow.assertions.Assert;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Story;
+import org.apache.commons.lang3.RandomUtils;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import utils.AllureUtils;
 
 import static com.tidal.actions.ProductDetailsAction.getProductTitle;
 
@@ -17,7 +20,6 @@ public class Tester {
         HomeActions.searchForItem("Shampoo");
         SearchActions.selectFromSearchResults(4);
         Assert.verify("Verify product title in PDP page ",getProductTitle()).contains("Shampoo");
-
     }
 
 
@@ -31,4 +33,20 @@ public class Tester {
 
     }
 
+
+    @DataProvider(name = "testData",parallel = true)
+    public Object[][] getData(){
+        return new Object[][]{
+                {new SearchData("Test1", 1 ,"Test One")},
+                {new SearchData("Test2", 2, "Test Two")},
+                {new SearchData("Test3", 3, "Test Three")}
+        };
+    }
+
+    @Test(description = "To test data provider", dataProvider = "testData", groups = {"testDataTEST","RegressionTest"})
+    public void dummyTest(SearchData searchData){
+        System.out.println("This is for "+searchData.name+" "+searchData.age);
+        int number= RandomUtils.nextInt(0,3);
+        Assert.verify("Verifying "+number,number).isEqualTo(searchData.age);
+    }
 }
