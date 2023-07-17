@@ -21,6 +21,7 @@ import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.testng.*;
 import utils.AllureUtils;
 import utils.FileFinder;
+import utils.TestScenario;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.ByteArrayInputStream;
@@ -46,7 +47,6 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
         String testCaseName = null;
         if (result.getMethod().isDataDriven()) {
             Object dataProviderObject = result.getParameters()[0];
-
             if (dataProviderObject instanceof String) {
                 testCaseName = dataProviderObject.toString();
             } else {
@@ -63,7 +63,8 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
             if (!isNullOrEmpty(testCaseName)) {
                 System.out.println("Inside test listner=====================================================================================================================");
                 System.out.println("Setting description to "+testCaseName);
-                String currentDescription = result.getMethod().getDescription();
+                String currentDescription = result.getMethod().getDescription()+"  "+testCaseName;
+                TestScenario.setTestDescription(currentDescription);
                 //result.getMethod().setDescription(currentDescription+"-"+testCaseName);
             }
         }
@@ -119,7 +120,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
+        System.out.println("=================================================INSIDE TESTNG LISTENTER ski"+result.getName() +" ============================================");
 
         try {
             if (isUiTest(result))
