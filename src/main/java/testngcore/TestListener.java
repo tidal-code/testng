@@ -1,40 +1,28 @@
 package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
-import com.tidal.utils.exceptions.AzureOperationsException;
 import com.tidal.utils.filehandlers.FileReader;
-import com.tidal.utils.filehandlers.Finder;
-import com.tidal.utils.json.JsonReader;
 import com.tidal.utils.loggers.Logger;
 import com.tidal.utils.propertieshandler.Config;
-import com.tidal.utils.propertieshandler.PropertiesFinder;
-import com.tidal.utils.report.ReportBuilder;
-import com.tidal.utils.report.Reporter;
+import com.tidal.utils.propertieshandler.PropertiesFinder;;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
 import io.qameta.allure.Allure;
-import io.qameta.allure.AllureLifecycle;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.testng.*;
-import utils.AllureUtils;
 import utils.FileFinder;
 import utils.TestScenario;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
@@ -101,7 +89,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
+        System.out.println("=================================================INSIDE TESTNG FAILURE LISTENTER"+result.getName() +" ============================================");
         try {
             if (isUiTest(result)) {
                 Logger.info(TestListener.class,"Attaching screenshot");
@@ -120,7 +108,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG LISTENTER ski"+result.getName() +" ============================================");
+        System.out.println("=================================================INSIDE TESTNG SKIPPED LISTENER"+result.getName() +" ============================================");
 
         try {
             if (isUiTest(result))
