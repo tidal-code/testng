@@ -2,13 +2,11 @@ package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
 import com.tidal.utils.filehandlers.FileReader;
-import com.tidal.utils.loggers.Logger;
 import com.tidal.utils.propertieshandler.Config;
-import com.tidal.utils.propertieshandler.PropertiesFinder;;
+import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
-import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
@@ -16,18 +14,18 @@ import org.testng.*;
 import utils.FileFinder;
 import utils.TestScenario;
 
-import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
-public class TestListener implements ITestListener, IInvokedMethodListener {
+public class TestListener implements ITestListener {
 
 
     @Override
@@ -42,18 +40,14 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
                     Field field = dataProviderObject.getClass().getDeclaredField("testCaseName");
                     field.setAccessible(true);
                     testCaseName = (String) field.get(dataProviderObject);
-                    System.out.println("Test case name is " + testCaseName);
                 } catch (IllegalAccessException | NoSuchFieldException ex) {
-                    ex.printStackTrace();
+                    //ERROR IGNORED
                 }
 
             }
             if (!isNullOrEmpty(testCaseName)) {
-                System.out.println("Inside test listner=====================================================================================================================");
-                System.out.println("Setting description to "+testCaseName);
-                String currentDescription = result.getMethod().getDescription()+"  "+testCaseName;
+                String currentDescription = result.getMethod().getDescription() + "  " + testCaseName;
                 TestScenario.setTestDescription(currentDescription);
-                //result.getMethod().setDescription(currentDescription+"-"+testCaseName);
             }
         }
         if (isUiTest(result)) {
@@ -89,11 +83,8 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG FAILURE LISTENTER"+result.getName() +" ============================================");
         try {
             if (isUiTest(result)) {
-                Logger.info(TestListener.class,"Attaching screenshot");
-                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
                 close();
             }
 
@@ -102,13 +93,12 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
         }
     }
 
-    private byte[] getScreenshot(){
-        return ((TakesScreenshot)Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
+    private byte[] getScreenshot() {
+        return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG SKIPPED LISTENER"+result.getName() +" ============================================");
 
         try {
             if (isUiTest(result))
@@ -121,7 +111,6 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
     @Override
     public void onTestSuccess(ITestResult result) {
-        System.out.println("=================================================INSIDE TESTNG LISTENTER"+result.getName() +" ============================================");
 
         try {
             if (isUiTest(result))
@@ -151,10 +140,6 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
         });
     }
 
-    @Override
-    public void onStart(ITestContext context) {
-
-    }
 
     private AbstractDriverOptions<?> setLocalOptions(String browserType) {
         return new BrowserWithOptions().getLocalOptions(browserType);
@@ -166,7 +151,7 @@ public class TestListener implements ITestListener, IInvokedMethodListener {
 
 
     public boolean isUiTest(ITestResult result) {
-        boolean flag= Arrays.stream(result.getMethod().getGroups())
+        boolean flag = Arrays.stream(result.getMethod().getGroups())
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
         return flag;
     }

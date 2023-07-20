@@ -8,7 +8,10 @@ import io.qameta.allure.Story;
 import org.apache.commons.lang3.RandomUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import utils.AllureUtils;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.tidal.actions.ProductDetailsAction.getProductTitle;
 
@@ -35,18 +38,19 @@ public class Tester {
 
 
     @DataProvider(name = "testData",parallel = true)
-    public Object[][] getData(){
-        return new Object[][]{
-                {new SearchData("Test1", 1 ,"Test One")},
-                {new SearchData("Test2", 2, "Test Two")},
-                {new SearchData("Test3", 3, "Test Three")}
-        };
+    public static Iterator<Object[]> getData(){
+        List<Object[]> dataToBeReturned = new ArrayList<Object[]>();
+        dataToBeReturned.add(new Object[]{1});
+        dataToBeReturned.add(new Object[]{2});
+        dataToBeReturned.add(new Object[]{3});
+        return dataToBeReturned.iterator();
     }
 
-    @Test(description = "To test data provider", dataProvider = "testData", groups = {"testDataTEST","RegressionTest"})
-    public void dummyTest(SearchData searchData){
-        System.out.println("This is for "+searchData.name+" "+searchData.age);
+    @Test(description = "To test data provider", dataProvider = "testData", groups = {"dataProviderTest","RegressionTest"})
+    public void API_dummyTest(int searchData){
+        System.out.println("This is for "+searchData+" "+searchData);
         int number= RandomUtils.nextInt(0,3);
-        Assert.verify("Verifying "+number,number).isEqualTo(searchData.age);
+        //Assert.verify("Verifying "+number,number).isEqualTo(searchData.age);
+        org.testng.Assert.assertEquals(number,searchData,"Verifyication failed");
     }
 }
