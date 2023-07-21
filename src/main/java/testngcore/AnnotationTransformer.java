@@ -8,6 +8,8 @@ import org.testng.annotations.ITestAnnotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
+
 /**
  * AnnotationTransformer is used to dynamically add retry option to each test method
  * without specifying it in annotation list of each test method
@@ -15,7 +17,7 @@ import java.lang.reflect.Method;
 public class AnnotationTransformer implements IAnnotationTransformer {
     @Override
     public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        if (Config.RETRY_FAILED_TESTS && annotation.getDataProvider()!=null) {
+        if (Config.RETRY_FAILED_TESTS && isNullOrEmpty(annotation.getDataProvider())) {
             annotation.setRetryAnalyzer(RetryAnalyzer.class);
         }
     }
