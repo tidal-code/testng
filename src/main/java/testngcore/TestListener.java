@@ -83,41 +83,22 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onTestFailure(ITestResult result) {
-        try {
-            if (isUiTest(result)) {
-                close();
-            }
-
-        } finally {
-            new ErrorStack().execute();
-        }
+        closure(result);
     }
 
+    //to be used for ado screenshot upload
     private byte[] getScreenshot() {
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
     @Override
     public void onTestSkipped(ITestResult result) {
-
-        try {
-            if (isUiTest(result))
-                close();
-
-        } finally {
-            new ErrorStack().execute();
-        }
+        closure(result);
     }
 
     @Override
     public void onTestSuccess(ITestResult result) {
-
-        try {
-            if (isUiTest(result))
-                close();
-        } finally {
-            new ErrorStack().execute();
-        }
+        closure(result);
     }
 
 
@@ -151,9 +132,17 @@ public class TestListener implements ITestListener {
 
 
     public boolean isUiTest(ITestResult result) {
-        boolean flag = Arrays.stream(result.getMethod().getGroups())
+        return Arrays.stream(result.getMethod().getGroups())
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
-        return flag;
+    }
+
+    private void closure(ITestResult result){
+        try {
+            if (isUiTest(result))
+                close();
+        } finally {
+            new ErrorStack().execute();
+        }
     }
 
 }
