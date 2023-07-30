@@ -6,7 +6,7 @@
 
     <groupId>io.github.tidal-code</groupId>
     <artifactId>wave-testng</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>Tidal TestNG Support</name>
     <description>TestNG Support for Tidal Framework</description>
     <url>https://github.com/tidal-code/testng</url>

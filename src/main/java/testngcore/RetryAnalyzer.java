@@ -14,11 +14,8 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 
     @Override
     public boolean retry(ITestResult iTestResult) {
-        System.out.println("Inside retry analyzer for "+iTestResult.getName()+" for count "+iTestResult.getMethod().getInvocationCount()+ " and current retry counter is set to "+counter);
         if (counter < retryLimit) {
-
             counter++;
-            System.out.println("Retrying "+iTestResult.getName());
             return true;
         }
         return false;
