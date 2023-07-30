@@ -6,7 +6,7 @@
 
     <groupId>io.github.tidal-code</groupId>
     <artifactId>wave-testng</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
     <name>Tidal TestNG Support</name>
     <description>TestNG Support for Tidal Framework</description>
     <url>https://github.com/tidal-code/testng</url>
@@ -50,8 +50,8 @@
         <java.version>11</java.version>
         <maven-surefire-plugin>3.1.2</maven-surefire-plugin>
         <maven-compiler-plugin>3.11.0</maven-compiler-plugin>
-        <testng-version>7.4.0</testng-version>
-        <aspectj.version>1.9.2</aspectj.version>
+        <testng-version>7.8.0</testng-version>
+        <aspectj.version>1.9.19</aspectj.version>
         <allure.maven.version>2.12.0</allure.maven.version>
         <allure.report.version>2.12.0</allure.report.version>
 
@@ -99,12 +99,12 @@
                     </argLine>
                     <properties>
                         <property>
-                            <name>testrunfactory</name>
-                            <value>testngcore.TestFactory</value>
+                            <name>parallel</name>
+                            <value>methods</value>
                         </property>
                         <property>
                             <name>listener</name>
-                            <value>testngcore.TestListener,testngcore.AnnotationTransformer</value>
+                            <value>testngcore.SuiteListener,testngcore.AnnotationTransformer,testngcore.TestListener</value>
                         </property>
                     </properties>
                     <testFailureIgnore>true</testFailureIgnore>
@@ -182,12 +182,22 @@
                     <groupId>io.cucumber</groupId>
                     <artifactId>cucumber-testng</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.qameta.allure</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>io.github.tidal-code</groupId>
             <artifactId>utils</artifactId>
             <version>0.0.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.qameta.allure</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -196,10 +206,18 @@
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-testng -->
+        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-testng -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-testng</artifactId>
             <version>2.23.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+       <!-- <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.4.0-b180830.0359</version>
+        </dependency>-->
+
     </dependencies>
 </project>

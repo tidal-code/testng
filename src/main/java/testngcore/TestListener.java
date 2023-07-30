@@ -1,22 +1,25 @@
 package testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
-import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
-import org.testng.ITestContext;
-import org.testng.ITestListener;
-import org.testng.ITestResult;
+import org.testng.*;
+import utils.FileFinder;
+import utils.TestScenario;
 
-import java.io.ByteArrayInputStream;
+import java.lang.reflect.Field;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
@@ -27,6 +30,26 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult result) {
+        String testCaseName = null;
+        if (result.getMethod().isDataDriven()) {
+            Object dataProviderObject = result.getParameters()[0];
+            if (dataProviderObject instanceof String) {
+                testCaseName = dataProviderObject.toString();
+            } else {
+                try {
+                    Field field = dataProviderObject.getClass().getDeclaredField("testCaseName");
+                    field.setAccessible(true);
+                    testCaseName = (String) field.get(dataProviderObject);
+                } catch (IllegalAccessException | NoSuchFieldException ex) {
+                    //ERROR IGNORED
+                }
+
+            }
+            if (!isNullOrEmpty(testCaseName)) {
+                String currentDescription = result.getMethod().getDescription() + "  " + testCaseName;
+                TestScenario.setTestDescription(currentDescription);
+            }
+        }
         if (isUiTest(result)) {
             String browser = Config.BROWSER_NAME;
 
@@ -62,7 +85,6 @@ public class TestListener implements ITestListener {
     public void onTestFailure(ITestResult result) {
         try {
             if (isUiTest(result)) {
-                Allure.addAttachment(result.getName(), "image/png", new ByteArrayInputStream(getScreenshot()), ".png");
                 close();
             }
 
@@ -71,8 +93,13 @@ public class TestListener implements ITestListener {
         }
     }
 
+    private byte[] getScreenshot() {
+        return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
+    }
+
     @Override
     public void onTestSkipped(ITestResult result) {
+
         try {
             if (isUiTest(result))
                 close();
@@ -84,6 +111,7 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onTestSuccess(ITestResult result) {
+
         try {
             if (isUiTest(result))
                 close();
@@ -95,13 +123,23 @@ public class TestListener implements ITestListener {
 
     @Override
     public void onFinish(ITestContext context) {
-
+        Iterator<ITestResult> skippedTestCases = context.getSkippedTests().getAllResults().iterator();
+        while (skippedTestCases.hasNext()) {
+            ITestResult skippedTestCase = skippedTestCases.next();
+            ITestNGMethod method = skippedTestCase.getMethod();
+            if (context.getSkippedTests().getResults(method).size() > 0) {
+                skippedTestCases.remove();
+            }
+        }
+        List<String> fileNames = FileFinder.findFile("-result.json", Paths.get("target"));
+        fileNames.parallelStream().forEach(fileName -> {
+            String jsonValue = FileReader.readFileToString(fileName, Paths.get("target"));
+            if (jsonValue.contains("parameters\":[{\"name\"") && jsonValue.contains("\"status\":\"skipped\"")) {
+                FileFinder.deleteFile(fileName, Paths.get("target"));
+            }
+        });
     }
 
-    @Override
-    public void onStart(ITestContext context) {
-
-    }
 
     private AbstractDriverOptions<?> setLocalOptions(String browserType) {
         return new BrowserWithOptions().getLocalOptions(browserType);
@@ -113,14 +151,11 @@ public class TestListener implements ITestListener {
 
 
     public boolean isUiTest(ITestResult result) {
-        return Arrays.stream(result.getMethod().getGroups())
+        boolean flag = Arrays.stream(result.getMethod().getGroups())
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
+        return flag;
     }
-
-    private byte[] getScreenshot() {
-
-        return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
-    }
-
 
 }
+
+
