@@ -3,6 +3,16 @@ package utils;
 public class TestScenario {
 
     private String testDescription;
+
+    public boolean isListenerInvoked() {
+        return listenerInvoked;
+    }
+
+    public void setListenerInvoked(boolean listenerInvoked) {
+        this.listenerInvoked = listenerInvoked;
+    }
+
+    private boolean listenerInvoked;
     private static ThreadLocal<TestScenario> testScenarioThreadLocal=ThreadLocal.withInitial(TestScenario::new);
 
     private TestScenario() {

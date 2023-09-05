@@ -25,8 +25,7 @@ public class AllureListener implements TestLifecycleListener {
     @Override
     public void beforeTestStop(TestResult result) {
         if (!(result.getFullName().contains("API_") || result.getFullName().contains("DB_")) && (result.getStatus().equals(Status.FAILED) || result.getStatus().equals(Status.BROKEN))) {
-
-            Allure.addAttachment(result.getName() + "_Failed_Screenshot", new ByteArrayInputStream(((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES)));
+          Allure.addAttachment(result.getName() + "_Failed_Screenshot", new ByteArrayInputStream(((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES)));
         }
     }
 }

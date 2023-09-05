@@ -3,6 +3,8 @@ package com.tidal.tests;
 import com.tidal.actions.HomeActions;
 import com.tidal.actions.SearchActions;
 import com.tidal.flow.assertions.Assert;
+import com.tidal.flow.assertions.Soft;
+import com.tidal.utils.report.ReportBuilder;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Story;
 import org.apache.commons.lang3.RandomUtils;
@@ -27,7 +29,7 @@ public class Tester {
 
 
     @Story("Test JIRA ID - Search")
-    @Test(groups ={ "SmokeTest","RegressionTest","specific"},description = "Test to verify search navigation")
+    @Test(groups ={ "SmokeTest","RegressionTest","specific"},description = "Test to verify search navigation pdp")
     public void testCartNavigation(){
         HomeActions.searchForItem("water bottle");
         SearchActions.selectFromSearchResults(4);
@@ -49,8 +51,15 @@ public class Tester {
     @Test(description = "To test data provider", dataProvider = "testData", groups = {"dataProviderTest","RegressionTest"})
     public void API_dummyTest(int searchData){
         System.out.println("This is for "+searchData+" "+searchData);
-        int number= RandomUtils.nextInt(0,3);
+        int result= searchData%2;
         //Assert.verify("Verifying "+number,number).isEqualTo(searchData.age);
-        org.testng.Assert.assertEquals(number,searchData,"Verifyication failed");
+        org.testng.Assert.assertEquals(result,0,"verification failed for "+searchData);
     }
+
+    public static void main(String[] args) {
+        ReportBuilder.createRunnerReport();
+
+    }
+
+
 }
