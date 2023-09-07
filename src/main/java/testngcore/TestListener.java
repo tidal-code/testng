@@ -4,6 +4,7 @@ import com.tidal.flow.assertions.stackbuilder.ErrorStack;
 import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
+import com.tidal.utils.scenario.ScenarioInfo;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
@@ -25,12 +26,14 @@ import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
-public class TestListener implements ITestListener {
+public class TestListener implements ITestListener, IHookable {
 
 
     @Override
     public void onTestStart(ITestResult result) {
         String testCaseName = null;
+        //to read data from csv data resolver
+        ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         if (result.getMethod().isDataDriven()) {
             Object dataProviderObject = result.getParameters()[0];
             if (dataProviderObject instanceof String) {
@@ -136,15 +139,22 @@ public class TestListener implements ITestListener {
                 .noneMatch(group -> group.contains("apiTest") || group.contains("dbTest"));
     }
 
-    private void closure(ITestResult result){
-        try {
-            if (isUiTest(result))
-                close();
-        } finally {
-            new ErrorStack().execute();
-        }
+
+    //do not close browser if debug group is added
+    private void closure(ITestResult result) {
+        if (isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).noneMatch(group->group.equalsIgnoreCase("debug")))
+            close();
     }
 
+
+
+
+    //to fail the test case in case of a soft assertion failure
+    @Override
+    public void run(IHookCallBack iHookCallBack, ITestResult iTestResult) {
+        iHookCallBack.runTestMethod(iTestResult);
+        new ErrorStack().execute();
+    }
 }
 
 
