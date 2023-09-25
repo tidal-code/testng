@@ -19,8 +19,7 @@ import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 public class AnnotationTransformer implements IAnnotationTransformer {
     @Override
     public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        Test testClassData = testMethod.getAnnotation(Test.class);
-        if (Config.RETRY_FAILED_TESTS && isNullOrEmpty(annotation.getDataProvider()) && Arrays.stream(testClassData.groups()).noneMatch(group->group.contains("skipRetry"))) {
+        if (Config.RETRY_FAILED_TESTS && isNullOrEmpty(annotation.getDataProvider()) && Arrays.stream(annotation.getGroups()).noneMatch(group->group.contains("skipRetry"))) {
             annotation.setRetryAnalyzer(RetryAnalyzer.class);
         }
     }
