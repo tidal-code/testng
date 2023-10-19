@@ -104,7 +104,7 @@
                         </property>
                         <property>
                             <name>listener</name>
-                            <value>testngcore.SuiteListener,testngcore.AnnotationTransformer,testngcore.TestListener</value>
+                            <value>testngcore.SuiteListener,testngcore.AnnotationTransformer,testngcore.TestListener,testngcore.DataProviderListener</value>
                         </property>
                     </properties>
                     <testFailureIgnore>true</testFailureIgnore>

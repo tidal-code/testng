@@ -87,6 +87,7 @@ public class TestListener implements ITestListener, IHookable {
     @Override
     public void onTestFailure(ITestResult result) {
         closure(result);
+        getJiraId(result);
     }
 
     //to be used for ado screenshot upload
@@ -102,6 +103,7 @@ public class TestListener implements ITestListener, IHookable {
     @Override
     public void onTestSuccess(ITestResult result) {
         closure(result);
+        getJiraId(result);
     }
 
 
@@ -146,7 +148,18 @@ public class TestListener implements ITestListener, IHookable {
             close();
     }
 
+    private void getJiraId(ITestResult result){
+        if(result.getMethod().isTest()){
+            if(result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class)) {
+                String jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
+                System.out.println("Jira ID is "+jiraId);
+            }
+            if(result.getMethod().isDataDriven()) {
 
+            }
+        }
+
+    }
 
 
     //to fail the test case in case of a soft assertion failure

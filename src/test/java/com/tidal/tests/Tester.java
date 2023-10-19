@@ -8,6 +8,7 @@ import io.qameta.allure.Allure;
 import io.qameta.allure.Story;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import testngcore.JiraId;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ public class Tester {
 
     @DataProvider(name = "testData", parallel = true)
     public static Iterator<Object[]> getData() {
+        System.out.println("Executing data provider");
         List<Object[]> dataToBeReturned = new ArrayList<Object[]>();
         dataToBeReturned.add(new Object[]{1});
         dataToBeReturned.add(new Object[]{2});
@@ -47,6 +49,7 @@ public class Tester {
         return dataToBeReturned.iterator();
     }
 
+    @JiraId("1,2,3")
     @Test(description = "To test data provider", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest"})
     public void numberModTest(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
@@ -54,9 +57,11 @@ public class Tester {
         Assert.verify("Verify that the number is even " + searchData, result).isEqualTo(0);
     }
 
+
+    @JiraId("1234")
     @Test(description = "To test data soft assertion", groups = {"softTest", "RegressionTest"})
     public void softAssertionTest() {
-        HomeActions.searchForItem("water bottle");
+     //   HomeActions.searchForItem("water bottle");
         IntStream.range(0,5).forEach(number->
                 Soft.verify("Verify value for "+number,(number%2)).isEqualTo(0));
     }
