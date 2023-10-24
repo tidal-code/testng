@@ -61,7 +61,7 @@ public class Tester {
     @JiraId("1234")
     @Test(description = "To test data soft assertion", groups = {"softTest", "RegressionTest"})
     public void softAssertionTest() {
-     //   HomeActions.searchForItem("water bottle");
+        HomeActions.searchForItem("water bottle");
         IntStream.range(0,5).forEach(number->
                 Soft.verify("Verify value for "+number,(number%2)).isEqualTo(0));
     }

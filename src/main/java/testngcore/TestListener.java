@@ -31,6 +31,9 @@ public class TestListener implements ITestListener, IHookable {
 
     @Override
     public void onTestStart(ITestResult result) {
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+            return;
+        }
         String testCaseName = null;
         //to read data from csv data resolver
         ScenarioInfo.setScenarioName(result.getMethod().getDescription());
@@ -86,6 +89,9 @@ public class TestListener implements ITestListener, IHookable {
 
     @Override
     public void onTestFailure(ITestResult result) {
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+            return;
+        }
         closure(result);
         getJiraId(result);
     }
@@ -97,11 +103,17 @@ public class TestListener implements ITestListener, IHookable {
 
     @Override
     public void onTestSkipped(ITestResult result) {
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+            return;
+        }
         closure(result);
     }
 
     @Override
     public void onTestSuccess(ITestResult result) {
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+            return;
+        }
         closure(result);
         getJiraId(result);
     }
@@ -144,21 +156,18 @@ public class TestListener implements ITestListener, IHookable {
 
     //do not close browser if debug group is added
     private void closure(ITestResult result) {
-        if (isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).noneMatch(group->group.equalsIgnoreCase("debug")))
+        if (isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).noneMatch(group -> group.equalsIgnoreCase("debug")))
             close();
     }
 
-    private void getJiraId(ITestResult result){
-        if(result.getMethod().isTest()){
-            if(result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class)) {
-                String jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
-                System.out.println("Jira ID is "+jiraId);
-            }
-            if(result.getMethod().isDataDriven()) {
-
+    private String getJiraId(ITestResult result) {
+        String jiraId="";
+        if (result.getMethod().isTest()) {
+            if (result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class) && !result.getMethod().isDataDriven()) {
+                 jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
             }
         }
-
+        return jiraId;
     }
 
 
