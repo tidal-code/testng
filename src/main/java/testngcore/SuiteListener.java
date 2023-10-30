@@ -29,6 +29,7 @@ public class SuiteListener implements IAlterSuiteListener {
         xmlSuite.setDataProviderThreadCount(dataProviderThreadCount);
         xmlSuite.setName(PropertiesFinder.getProperty("testSuiteName"));
         XmlTest test = new XmlTest(xmlSuite);
+
         test.setIncludedGroups(includedGroups);
         test.setExcludedGroups(excludedGroups);
         ArrayList<XmlPackage> xmlPackages = new ArrayList<>();

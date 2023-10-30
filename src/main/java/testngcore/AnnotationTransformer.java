@@ -4,9 +4,11 @@ package testngcore;
 import com.tidal.wave.config.Config;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
+import org.testng.annotations.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 
@@ -17,7 +19,7 @@ import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 public class AnnotationTransformer implements IAnnotationTransformer {
     @Override
     public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        if (Config.RETRY_FAILED_TESTS && isNullOrEmpty(annotation.getDataProvider())) {
+        if (Config.RETRY_FAILED_TESTS && isNullOrEmpty(annotation.getDataProvider()) && Arrays.stream(annotation.getGroups()).noneMatch(group->group.contains("skipRetry"))) {
             annotation.setRetryAnalyzer(RetryAnalyzer.class);
         }
     }
