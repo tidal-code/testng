@@ -1,21 +1,22 @@
 package com.tidal.tests;
 
-import com.tidal.actions.HomeActions;
-import com.tidal.actions.SearchActions;
 import com.tidal.flow.assertions.Assert;
 import com.tidal.flow.assertions.Soft;
+import dev.tidalcode.testng.actions.HomeActions;
+import dev.tidalcode.testng.actions.SearchActions;
+import dev.tidalcode.testng.testngcore.JiraId;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Story;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import testngcore.JiraId;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.tidal.actions.ProductDetailsAction.getProductTitle;
+import static dev.tidalcode.testng.actions.ProductDetailsAction.getProductTitle;
+
 
 public class Tester {
 
@@ -35,7 +36,6 @@ public class Tester {
         SearchActions.selectFromSearchResults(4);
         Allure.step("Verify the product title in PDP page");
         Assert.verify("Verify product title in PDP page ", getProductTitle()).contains("Shruti");
-
     }
 
 

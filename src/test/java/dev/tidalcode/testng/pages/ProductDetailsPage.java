@@ -1,4 +1,4 @@
-package com.tidal.pages;
+package dev.tidalcode.testng.pages;
 
 public class ProductDetailsPage {
 

@@ -1,4 +1,4 @@
-package testngcore;
+package dev.tidalcode.testng.testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
 import com.tidal.utils.filehandlers.FileReader;
@@ -8,12 +8,14 @@ import com.tidal.utils.scenario.ScenarioInfo;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
+import dev.tidalcode.testng.reports.Feature;
+import dev.tidalcode.testng.reports.Story;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.testng.*;
-import utils.FileFinder;
-import utils.TestScenario;
+import dev.tidalcode.testng.utils.FileFinder;
+import dev.tidalcode.testng.utils.TestScenario;
 
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
@@ -31,12 +33,15 @@ public class TestListener implements ITestListener, IHookable {
 
     @Override
     public void onTestStart(ITestResult result) {
+        setReportAttributes(result);
+        ScenarioInfo.setScenarioName(result.getMethod().getDescription());
+
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
             return;
         }
+
         String testCaseName = null;
         //to read data from csv data resolver
-        ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         if (result.getMethod().isDataDriven()) {
             Object dataProviderObject = result.getParameters()[0];
             if (dataProviderObject instanceof String) {
@@ -86,6 +91,17 @@ public class TestListener implements ITestListener, IHookable {
         }
     }
 
+    private static void setReportAttributes(ITestResult result) {
+        Feature annotatedFeature = result.getMethod().getTestClass().getRealClass().getAnnotation(Feature.class);
+        if(null != annotatedFeature) {
+            TestScenario.setFeature(annotatedFeature.value());
+        }
+        Story annotatedStory = result.getMethod().getTestClass().getRealClass().getAnnotation(Story.class);
+        if(null != annotatedStory) {
+            TestScenario.setStory(annotatedStory.value());
+        }
+    }
+
 
     @Override
     public void onTestFailure(ITestResult result) {
@@ -125,7 +141,7 @@ public class TestListener implements ITestListener, IHookable {
         while (skippedTestCases.hasNext()) {
             ITestResult skippedTestCase = skippedTestCases.next();
             ITestNGMethod method = skippedTestCase.getMethod();
-            if (context.getSkippedTests().getResults(method).size() > 0) {
+            if (!context.getSkippedTests().getResults(method).isEmpty()) {
                 skippedTestCases.remove();
             }
         }

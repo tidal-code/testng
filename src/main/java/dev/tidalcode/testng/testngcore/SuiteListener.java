@@ -1,4 +1,4 @@
-package testngcore;
+package dev.tidalcode.testng.testngcore;
 
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import org.testng.IAlterSuiteListener;
