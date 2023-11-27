@@ -83,8 +83,8 @@ public class Tester {
     }
 
     @JiraId("1,2,3")
-    @Test(description = "To test data provider for {0}", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest"})
-    public void numberModTest(int searchData) {
+    @Test(description = "To test data provider for a scenario without placeholders", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest"})
+    public void numberModTestWithoutPlaceHolders(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
         int result = searchData % 2;
         Assert.verify("Verify that the number is even " + searchData, result).isEqualTo(0);
@@ -97,6 +97,14 @@ public class Tester {
         HomeActions.searchForItem("water bottle");
         IntStream.range(0, 5).forEach(number ->
                 Soft.verify("Verify value for " + number, (number % 2)).isEqualTo(0));
+    }
+
+    @JiraId("24,25,26")
+    @Test(description = "To test data provider for {0}", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest","debug"})
+    public void numberModTestWithPlaceHolders(int searchData) {
+        System.out.println("This is for " + searchData + " " + searchData);
+        int result = searchData % 2;
+        Assert.verify("Verify that the number is even " + searchData, result).isEqualTo(0);
     }
 }
 

@@ -18,7 +18,6 @@ import org.testng.*;
 import dev.tidalcode.testng.utils.FileFinder;
 import dev.tidalcode.testng.utils.TestScenario;
 
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
@@ -157,7 +156,7 @@ public class TestListener implements ITestListener, IHookable {
 
     //do not close browser if debug group is added in local mode
     private void closure(ITestResult result) {
-        if ("local".equalsIgnoreCase(Config.EXECUTION_TYPE) && isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).noneMatch(group -> group.equalsIgnoreCase("debug")))
+        if (!(isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).anyMatch(group -> group.equalsIgnoreCase("debug")) && "local".equalsIgnoreCase(Config.EXECUTION_TYPE)))
             close();
     }
 

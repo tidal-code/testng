@@ -14,10 +14,8 @@ import java.io.ByteArrayInputStream;
 
 public class AllureListener implements TestLifecycleListener {
 
-
     @Override
     public void beforeTestStop(TestResult result) {
-        System.out.println("Inside before stop "+result.getParameters());
         if (!result.getParameters().isEmpty()) {
             result.setName(TestScenario.getTestDescription());
             TestScenario.removeCurrentTestScenario();
