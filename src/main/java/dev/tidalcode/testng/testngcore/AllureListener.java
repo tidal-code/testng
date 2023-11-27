@@ -16,15 +16,12 @@ public class AllureListener implements TestLifecycleListener {
 
 
     @Override
-    public void beforeTestWrite(TestResult result) {
+    public void beforeTestStop(TestResult result) {
+        System.out.println("Inside before stop "+result.getParameters());
         if (!result.getParameters().isEmpty()) {
             result.setName(TestScenario.getTestDescription());
             TestScenario.removeCurrentTestScenario();
         }
-    }
-
-    @Override
-    public void beforeTestStop(TestResult result) {
         TestInfo.remove(result.getStatus());
         if (!(result.getFullName().contains("API_") || result.getFullName().contains("DB_")) && (result.getStatus().equals(Status.FAILED) || result.getStatus().equals(Status.BROKEN))) {
             Allure.addAttachment(result.getName() + "_Failed_Screenshot", new ByteArrayInputStream(((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES)));

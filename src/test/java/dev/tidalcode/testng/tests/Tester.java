@@ -83,7 +83,7 @@ public class Tester {
     }
 
     @JiraId("1,2,3")
-    @Test(description = "To test data provider", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest"})
+    @Test(description = "To test data provider for {0}", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest"})
     public void numberModTest(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
         int result = searchData % 2;
