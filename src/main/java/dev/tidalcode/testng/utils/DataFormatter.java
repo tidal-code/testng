@@ -34,7 +34,7 @@ public class DataFormatter {
                     testDescription = testDescription.replace(placeholder, parameters[i].toString());
                 }
             }
-            return String.format(testDescription, parameters);
+            return testDescription;
         }
         //if test description does not contain placeholders ({0}), then append the first param after a space and return as test description
         else{

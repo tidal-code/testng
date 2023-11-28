@@ -83,7 +83,7 @@ public class Tester {
     }
 
     @JiraId("1,2,3")
-    @Test(description = "To test data provider for a scenario without placeholders", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest"})
+    @Test(description = "To test data provider for a scenario without placeholders", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest", "demoTest","debug"})
     public void numberModTestWithoutPlaceHolders(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
         int result = searchData % 2;
