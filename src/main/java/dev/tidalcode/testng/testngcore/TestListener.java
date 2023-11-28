@@ -41,9 +41,11 @@ public class TestListener implements ITestListener, IHookable {
             String currentDescription = DataFormatter.formatTestDescription(result.getMethod().getDescription(), result.getParameters());
             TestScenario.setTestDescription(currentDescription);
             ScenarioInfo.setScenarioName(currentDescription);
+            result.setAttribute("customNameAttribute",currentDescription);
 
         } else {
             ScenarioInfo.setScenarioName(result.getMethod().getDescription());
+            result.setAttribute("customNameAttribute",result.getMethod().getDescription());
         }
         if (isUiTest(result)) {
             String browser = Config.BROWSER_NAME;

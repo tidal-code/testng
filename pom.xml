@@ -110,7 +110,7 @@
                         </property>
                         <property>
                             <name>listener</name>
-                            <value>dev.tidalcode.testng.testngcore.SuiteListener,dev.tidalcode.testng.testngcore.AnnotationTransformer,dev.tidalcode.testng.testngcore.TestListener</value>
+                            <value>dev.tidalcode.testng.testngcore.SuiteListener,dev.tidalcode.testng.testngcore.AnnotationTransformer,dev.tidalcode.testng.testngcore.TestListener,dev.tidalcode.testng.testngcore.CustomReporter</value>
                         </property>
                     </properties>
                     <testFailureIgnore>true</testFailureIgnore>
