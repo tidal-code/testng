@@ -1,6 +1,7 @@
 package dev.tidalcode.testng.testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.filehandlers.FileOutWriter;
 import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
@@ -18,18 +19,22 @@ import org.testng.*;
 import dev.tidalcode.testng.utils.FileFinder;
 import dev.tidalcode.testng.utils.TestScenario;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.tidal.utils.filehandlers.FilePaths.TARGET_FOLDER_PATH;
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
 public class TestListener implements ITestListener, IHookable {
 
+    private static final Path PATH_TO_WRITE_FILE = Paths.get(TARGET_FOLDER_PATH.toString(), "screenshots");
 
     @Override
     public void onTestStart(ITestResult result) {
@@ -94,6 +99,7 @@ public class TestListener implements ITestListener, IHookable {
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
+        saveScreenShotForUpload(result);
         closure(result);
         getJiraId(result);
     }
@@ -103,6 +109,16 @@ public class TestListener implements ITestListener, IHookable {
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
+    private void saveScreenShotForUpload(ITestResult result) {
+        if (isUiTest(result)) {
+            byte[] screenShot = getScreenshot();
+            String formattedFileName = result.getAttribute("customNameAttribute").toString().replaceAll("[^a-zA-Z0-9]", "");
+            Path screenshotStringPath = Paths.get(PATH_TO_WRITE_FILE.toString(), formattedFileName + ".txt");
+            String encodedScreenshotData = Base64.getEncoder().encodeToString(screenShot);
+            FileOutWriter.createDirectory(PATH_TO_WRITE_FILE.toString());
+            FileOutWriter.writeFileTo(encodedScreenshotData, screenshotStringPath.toString());
+        }
+    }
     @Override
     public void onTestSkipped(ITestResult result) {
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
