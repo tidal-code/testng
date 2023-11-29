@@ -2,10 +2,12 @@ package dev.tidalcode.testng.testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
 import com.tidal.utils.filehandlers.FileOutWriter;
+import com.tidal.utils.filehandlers.FilePaths;
 import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.utils.scenario.ScenarioInfo;
+import com.tidal.utils.utils.Helper;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
@@ -27,15 +29,14 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.tidal.utils.filehandlers.FilePaths.TARGET_FOLDER_PATH;
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
 public class TestListener implements ITestListener, IHookable {
 
+    private static final Path TARGET_FOLDER_PATH = Paths.get(Helper.getAbsoluteFromRelativePath(FilePaths.TARGET_FOLDER_PATH.getPath()));
     private static final Path PATH_TO_WRITE_FILE = Paths.get(TARGET_FOLDER_PATH.toString(), "screenshots");
-
     @Override
     public void onTestStart(ITestResult result) {
         setReportAttributes(result);
@@ -45,12 +46,11 @@ public class TestListener implements ITestListener, IHookable {
         if (result.getMethod().isDataDriven()) {
             String currentDescription = DataFormatter.formatTestDescription(result.getMethod().getDescription(), result.getParameters());
             TestScenario.setTestDescription(currentDescription);
-            ScenarioInfo.setScenarioName(currentDescription);
             result.setAttribute("customNameAttribute",currentDescription);
-
+            ScenarioInfo.setScenarioName(currentDescription);
         } else {
-            ScenarioInfo.setScenarioName(result.getMethod().getDescription());
             result.setAttribute("customNameAttribute",result.getMethod().getDescription());
+            ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         }
         if (isUiTest(result)) {
             String browser = Config.BROWSER_NAME;
