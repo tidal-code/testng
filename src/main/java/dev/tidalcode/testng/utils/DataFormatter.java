@@ -3,6 +3,7 @@ package dev.tidalcode.testng.utils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,7 @@ public class DataFormatter {
     private static final String stringToReplacePattern="\\{\\d+\\}";
     public static String formatTestDescription(String testDescription, Object[] parameters) {
         //if the parameter is a custom object, get the first custom object, and retrieve testCaseName field from it
-        if (Arrays.stream(parameters).anyMatch(parameter -> parameter.getClass().getClassLoader() != null)) {
+        if (Arrays.stream(parameters).filter(Objects::nonNull).anyMatch(parameter -> parameter.getClass().getClassLoader() != null)) {
             try {
                 Object dataProviderObject = parameters[0];
                 Field field = parameters[0].getClass().getDeclaredField("testCaseName");
