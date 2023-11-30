@@ -1,8 +1,11 @@
-package utils;
+package dev.tidalcode.testng.utils;
 
 public class TestScenario {
 
     private String testDescription;
+    private String feature;
+    private String story;
+
     private static ThreadLocal<TestScenario> testScenarioThreadLocal=ThreadLocal.withInitial(TestScenario::new);
 
     private TestScenario() {
@@ -24,4 +27,19 @@ public class TestScenario {
         getCurrentTestScenario().testDescription = testDescription;
     }
 
+    public static String getFeature() {
+        return getCurrentTestScenario().feature;
+    }
+
+    public static void setFeature(String feature) {
+        getCurrentTestScenario().feature = feature;
+    }
+
+    public static String getStory() {
+        return getCurrentTestScenario().story;
+    }
+
+    public static void setStory(String story) {
+        getCurrentTestScenario().story = story;
+    }
 }

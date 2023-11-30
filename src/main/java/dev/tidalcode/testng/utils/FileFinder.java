@@ -1,4 +1,4 @@
-package utils;
+package dev.tidalcode.testng.utils;
 
 import com.tidal.utils.filehandlers.Finder;
 import com.tidal.wave.exceptions.RuntimeTestException;

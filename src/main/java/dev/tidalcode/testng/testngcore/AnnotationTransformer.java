@@ -1,10 +1,9 @@
-package testngcore;
+package dev.tidalcode.testng.testngcore;
 
 
 import com.tidal.wave.config.Config;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
-import org.testng.annotations.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;

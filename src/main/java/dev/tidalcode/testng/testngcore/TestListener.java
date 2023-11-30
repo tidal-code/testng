@@ -1,24 +1,31 @@
-package testngcore;
+package dev.tidalcode.testng.testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.utils.filehandlers.FileOutWriter;
+import com.tidal.utils.filehandlers.FilePaths;
 import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.utils.scenario.ScenarioInfo;
+import com.tidal.utils.utils.Helper;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
 import com.tidal.wave.options.BrowserWithOptions;
+import dev.tidalcode.testng.reports.Feature;
+import dev.tidalcode.testng.reports.Story;
+import dev.tidalcode.testng.utils.DataFormatter;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.testng.*;
-import utils.FileFinder;
-import utils.TestScenario;
+import dev.tidalcode.testng.utils.FileFinder;
+import dev.tidalcode.testng.utils.TestScenario;
 
-import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,33 +35,22 @@ import static com.tidal.wave.browser.Browser.close;
 
 public class TestListener implements ITestListener, IHookable {
 
-
+    private static final Path TARGET_FOLDER_PATH = Paths.get(Helper.getAbsoluteFromRelativePath(FilePaths.TARGET_FOLDER_PATH.getPath()));
+    private static final Path PATH_TO_WRITE_FILE = Paths.get(TARGET_FOLDER_PATH.toString(), "screenshots");
     @Override
     public void onTestStart(ITestResult result) {
-        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+        setReportAttributes(result);
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
-        String testCaseName = null;
-        //to read data from csv data resolver
-        ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         if (result.getMethod().isDataDriven()) {
-            Object dataProviderObject = result.getParameters()[0];
-            if (dataProviderObject instanceof String) {
-                testCaseName = dataProviderObject.toString();
-            } else {
-                try {
-                    Field field = dataProviderObject.getClass().getDeclaredField("testCaseName");
-                    field.setAccessible(true);
-                    testCaseName = (String) field.get(dataProviderObject);
-                } catch (IllegalAccessException | NoSuchFieldException ex) {
-                    //ERROR IGNORED
-                }
-
-            }
-            if (!isNullOrEmpty(testCaseName)) {
-                String currentDescription = result.getMethod().getDescription() + "  " + testCaseName;
-                TestScenario.setTestDescription(currentDescription);
-            }
+            String currentDescription = DataFormatter.formatTestDescription(result.getMethod().getDescription(), result.getParameters());
+            TestScenario.setTestDescription(currentDescription);
+            result.setAttribute("customNameAttribute",currentDescription);
+            ScenarioInfo.setScenarioName(currentDescription);
+        } else {
+            result.setAttribute("customNameAttribute",result.getMethod().getDescription());
+            ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         }
         if (isUiTest(result)) {
             String browser = Config.BROWSER_NAME;
@@ -86,12 +82,24 @@ public class TestListener implements ITestListener, IHookable {
         }
     }
 
+    private static void setReportAttributes(ITestResult result) {
+        Feature annotatedFeature = result.getMethod().getTestClass().getRealClass().getAnnotation(Feature.class);
+        if (null != annotatedFeature) {
+            TestScenario.setFeature(annotatedFeature.value());
+        }
+        Story annotatedStory = result.getMethod().getTestClass().getRealClass().getAnnotation(Story.class);
+        if (null != annotatedStory) {
+            TestScenario.setStory(annotatedStory.value());
+        }
+    }
+
 
     @Override
     public void onTestFailure(ITestResult result) {
-        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
+        saveScreenShotForUpload(result);
         closure(result);
         getJiraId(result);
     }
@@ -101,9 +109,19 @@ public class TestListener implements ITestListener, IHookable {
         return ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
     }
 
+    private void saveScreenShotForUpload(ITestResult result) {
+        if (isUiTest(result)) {
+            byte[] screenShot = getScreenshot();
+            String formattedFileName = result.getAttribute("customNameAttribute").toString().replaceAll("[^a-zA-Z0-9]", "");
+            Path screenshotStringPath = Paths.get(PATH_TO_WRITE_FILE.toString(), formattedFileName + ".txt");
+            String encodedScreenshotData = Base64.getEncoder().encodeToString(screenShot);
+            FileOutWriter.createDirectory(PATH_TO_WRITE_FILE.toString());
+            FileOutWriter.writeFileTo(encodedScreenshotData, screenshotStringPath.toString());
+        }
+    }
     @Override
     public void onTestSkipped(ITestResult result) {
-        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
         closure(result);
@@ -111,7 +129,7 @@ public class TestListener implements ITestListener, IHookable {
 
     @Override
     public void onTestSuccess(ITestResult result) {
-        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))){
+        if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
         closure(result);
@@ -125,7 +143,7 @@ public class TestListener implements ITestListener, IHookable {
         while (skippedTestCases.hasNext()) {
             ITestResult skippedTestCase = skippedTestCases.next();
             ITestNGMethod method = skippedTestCase.getMethod();
-            if (context.getSkippedTests().getResults(method).size() > 0) {
+            if (!context.getSkippedTests().getResults(method).isEmpty()) {
                 skippedTestCases.remove();
             }
         }
@@ -154,17 +172,17 @@ public class TestListener implements ITestListener, IHookable {
     }
 
 
-    //do not close browser if debug group is added
+    //do not close browser if debug group is added in local mode
     private void closure(ITestResult result) {
-        if (isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).noneMatch(group -> group.equalsIgnoreCase("debug")))
+        if (!(isUiTest(result) && Arrays.stream(result.getMethod().getGroups()).anyMatch(group -> group.equalsIgnoreCase("debug")) && "local".equalsIgnoreCase(Config.EXECUTION_TYPE)))
             close();
     }
 
     private String getJiraId(ITestResult result) {
-        String jiraId="";
+        String jiraId = "";
         if (result.getMethod().isTest()) {
             if (result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class) && !result.getMethod().isDataDriven()) {
-                 jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
+                jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
             }
         }
         return jiraId;

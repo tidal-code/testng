@@ -1,14 +1,14 @@
-package com.tidal.actions;
+package dev.tidalcode.testng.actions;
 
-import com.tidal.pages.HomePage;
-import io.qameta.allure.Allure;
+import dev.tidalcode.testng.pages.HomePage;
+import dev.tidalcode.testng.reports.TestInfo;
 
 import static com.tidal.wave.webelement.ElementFinder.find;
 
 public class HomeActions {
 
     public static void searchForItem(String keyWord){
-        Allure.step("Search for the keyword "+keyWord);
+        TestInfo.step("Search for the keyword "+keyWord);
         find(HomePage.SEARCH_INPUT).sendKeys(keyWord).pressEnter();
     }
 }
