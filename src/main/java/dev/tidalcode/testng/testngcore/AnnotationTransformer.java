@@ -1,7 +1,7 @@
 package dev.tidalcode.testng.testngcore;
 
 
-import com.tidal.wave.config.Config;
+import dev.tidalcode.wave.config.Config;
 import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
 

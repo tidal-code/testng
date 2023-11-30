@@ -3,7 +3,7 @@ package dev.tidalcode.testng.actions;
 import dev.tidalcode.testng.pages.HomePage;
 import dev.tidalcode.testng.reports.TestInfo;
 
-import static com.tidal.wave.webelement.ElementFinder.find;
+import static dev.tidalcode.wave.webelement.ElementFinder.find;
 
 public class HomeActions {
 

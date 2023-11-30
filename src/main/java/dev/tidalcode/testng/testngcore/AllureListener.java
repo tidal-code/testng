@@ -1,6 +1,6 @@
 package dev.tidalcode.testng.testngcore;
 
-import com.tidal.wave.browser.Driver;
+import dev.tidalcode.wave.browser.Driver;
 import dev.tidalcode.testng.reports.TestInfo;
 import io.qameta.allure.Allure;
 import io.qameta.allure.listener.TestLifecycleListener;

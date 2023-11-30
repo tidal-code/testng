@@ -5,9 +5,9 @@ import com.tidal.utils.filehandlers.FileReader;
 import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.utils.scenario.ScenarioInfo;
-import com.tidal.wave.browser.Browser;
-import com.tidal.wave.browser.Driver;
-import com.tidal.wave.options.BrowserWithOptions;
+import dev.tidalcode.wave.browser.Browser;
+import dev.tidalcode.wave.browser.Driver;
+import dev.tidalcode.wave.options.BrowserWithOptions;
 import dev.tidalcode.testng.reports.Feature;
 import dev.tidalcode.testng.reports.Story;
 import dev.tidalcode.testng.utils.DataFormatter;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
-import static com.tidal.wave.browser.Browser.close;
+import static dev.tidalcode.wave.browser.Browser.close;
 
 
 public class TestListener implements ITestListener, IHookable {
