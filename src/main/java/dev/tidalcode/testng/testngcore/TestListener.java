@@ -1,25 +1,28 @@
 package dev.tidalcode.testng.testngcore;
 
 import com.tidal.flow.assertions.stackbuilder.ErrorStack;
+import com.tidal.stream.zephyrscale.ZephyrScale;
+import com.tidal.utils.csv.CsvData;
 import com.tidal.utils.filehandlers.FileOutWriter;
 import com.tidal.utils.filehandlers.FilePaths;
 import com.tidal.utils.filehandlers.FileReader;
-import com.tidal.utils.propertieshandler.Config;
 import com.tidal.utils.propertieshandler.PropertiesFinder;
 import com.tidal.utils.scenario.ScenarioInfo;
 import com.tidal.utils.utils.Helper;
 import com.tidal.wave.browser.Browser;
 import com.tidal.wave.browser.Driver;
+import com.tidal.wave.config.Config;
 import com.tidal.wave.options.BrowserWithOptions;
 import dev.tidalcode.testng.reports.Feature;
 import dev.tidalcode.testng.reports.Story;
 import dev.tidalcode.testng.utils.DataFormatter;
+import dev.tidalcode.testng.utils.FileFinder;
+import dev.tidalcode.testng.utils.TestScenario;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
+import org.slf4j.Logger;
 import org.testng.*;
-import dev.tidalcode.testng.utils.FileFinder;
-import dev.tidalcode.testng.utils.TestScenario;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,27 +32,30 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.tidal.utils.utils.CheckString.isNotNullOrEmpty;
 import static com.tidal.utils.utils.CheckString.isNullOrEmpty;
 import static com.tidal.wave.browser.Browser.close;
 
 
 public class TestListener implements ITestListener, IHookable {
-
+    public Logger logger = LoggerFactory.getLogger(TestListener.class);
     private static final Path TARGET_FOLDER_PATH = Paths.get(Helper.getAbsoluteFromRelativePath(FilePaths.TARGET_FOLDER_PATH.getPath()));
     private static final Path PATH_TO_WRITE_FILE = Paths.get(TARGET_FOLDER_PATH.toString(), "screenshots");
+
     @Override
     public void onTestStart(ITestResult result) {
         setReportAttributes(result);
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
+            logger.info("Dry Run mode chosen. test will not be run");
             return;
         }
         if (result.getMethod().isDataDriven()) {
             String currentDescription = DataFormatter.formatTestDescription(result.getMethod().getDescription(), result.getParameters());
             TestScenario.setTestDescription(currentDescription);
-            result.setAttribute("customNameAttribute",currentDescription);
+            result.setAttribute("customNameAttribute", currentDescription);
             ScenarioInfo.setScenarioName(currentDescription);
         } else {
-            result.setAttribute("customNameAttribute",result.getMethod().getDescription());
+            result.setAttribute("customNameAttribute", result.getMethod().getDescription());
             ScenarioInfo.setScenarioName(result.getMethod().getDescription());
         }
         if (isUiTest(result)) {
@@ -63,15 +69,18 @@ public class TestListener implements ITestListener, IHookable {
             //Set the options corresponding to remote and local runs
             String executionType = Config.EXECUTION_TYPE;
             if (executionType.equalsIgnoreCase("local")) {
+                logger.info("Running in local mode");
                 options = setLocalOptions(browser);
                 duration = Duration.ofSeconds(Config.LOCAL_TIMEOUT);
             } else if (executionType.equalsIgnoreCase("docker") || executionType.equalsIgnoreCase("remote")) {
+                logger.info("Running in remote mode");
                 options = setRemoteOptions(browser);
                 duration = Duration.ofSeconds(Config.REMOTE_TIMEOUT);
             }
 
             //Option to complete the initial setting without setting up a browser session
             if (!isNullOrEmpty(Config.BASE_URL)) {
+                logger.info("Test starting with options {}", options);
                 Browser
                         .withOptions(options)
                         .type(browser)
@@ -99,9 +108,9 @@ public class TestListener implements ITestListener, IHookable {
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
+        publishResultToZephyrScale(result);
         saveScreenShotForUpload(result);
         closure(result);
-        getJiraId(result);
     }
 
     //to be used for ado screenshot upload
@@ -119,6 +128,7 @@ public class TestListener implements ITestListener, IHookable {
             FileOutWriter.writeFileTo(encodedScreenshotData, screenshotStringPath.toString());
         }
     }
+
     @Override
     public void onTestSkipped(ITestResult result) {
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
@@ -132,8 +142,8 @@ public class TestListener implements ITestListener, IHookable {
         if ("true".equalsIgnoreCase(PropertiesFinder.getProperty("testng.mode.dryrun"))) {
             return;
         }
+        publishResultToZephyrScale(result);
         closure(result);
-        getJiraId(result);
     }
 
 
@@ -179,13 +189,17 @@ public class TestListener implements ITestListener, IHookable {
     }
 
     private String getJiraId(ITestResult result) {
-        String jiraId = "";
+
         if (result.getMethod().isTest()) {
-            if (result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class) && !result.getMethod().isDataDriven()) {
-                jiraId = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
+            if (result.getMethod().getConstructorOrMethod().getMethod().isAnnotationPresent(JiraId.class)) {
+                return result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(JiraId.class).value();
             }
+
+            CsvData csvData = new CsvData();
+            csvData.setCSVFolderAsDataFilePath();
+            return csvData.readDataFrom("TestLinkData", "Key");
         }
-        return jiraId;
+        return null;
     }
 
 
@@ -194,6 +208,21 @@ public class TestListener implements ITestListener, IHookable {
     public void run(IHookCallBack iHookCallBack, ITestResult iTestResult) {
         iHookCallBack.runTestMethod(iTestResult);
         new ErrorStack().execute();
+    }
+
+    private void publishResultToZephyrScale(ITestResult result) {
+        String zephyrResultUpdate = PropertiesFinder.getProperty("zephyr.results.update");
+
+//        logger.info("Publishing results to Zephyr");
+//        logger.info("Zephyr result publish (true/false) {}", zephyrResultUpdate);
+
+        if (isNotNullOrEmpty(zephyrResultUpdate)  && zephyrResultUpdate.equals("true") ) {
+
+            new ZephyrScale.TestResults().updateTestNGResults()
+                    .testTagProcessor(getJiraId(result))
+                    .testStatus(result.isSuccess()) //Negation added to negate the negative result.
+                    .publish();
+        }
     }
 }
 

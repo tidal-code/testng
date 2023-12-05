@@ -26,7 +26,7 @@ public class Tester {
 
     @Story("Test JIRA ID - Search")
     @JiraId(value = "234343")
-    @Test(groups = {"SmokeTest", "RegressionTest", "special1mvn cl"}, description = "TestInfo to verify search navigation")
+    @Test(groups = {"SmokeTest", "RegressionTest", "special1mvn"}, description = "TestInfo to verify search navigation")
     public void testSearchNavigation() {
         TestInfo.given("Searching for product");
         TestInfo.given("Searching for product in the next page");
@@ -82,7 +82,7 @@ public class Tester {
         return dataToBeReturned.iterator();
     }
 
-    @JiraId("1,2,3")
+    @JiraId(value = "1")
     @Test(description = "To test data provider for a scenario without placeholders", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest", "demoTest","debug"})
     public void numberModTestWithoutPlaceHolders(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
@@ -91,7 +91,7 @@ public class Tester {
     }
 
 
-    @JiraId("1234")
+    @JiraId(value = "1234")
     @Test(description = "To test data soft assertion", groups = {"softTest", "RegressionTest"})
     public void softAssertionTest() {
         HomeActions.searchForItem("water bottle");
@@ -99,7 +99,7 @@ public class Tester {
                 Soft.verify("Verify value for " + number, (number % 2)).isEqualTo(0));
     }
 
-    @JiraId("24,25,26")
+    @JiraId(value = "24")
     @Test(description = "To test data provider for {0}", dataProvider = "testData", groups = {"dataProviderTest", "RegressionTest","demoTest","debug"})
     public void numberModTestWithPlaceHolders(int searchData) {
         System.out.println("This is for " + searchData + " " + searchData);
