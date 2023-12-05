@@ -22,6 +22,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.*;
 
 import java.nio.file.Path;
