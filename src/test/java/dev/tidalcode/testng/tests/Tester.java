@@ -26,7 +26,7 @@ public class Tester {
 
     @Story("Test JIRA ID - Search")
     @JiraId(value = "234343")
-    @Test(groups = {"SmokeTest", "RegressionTest", "special1mvn"}, description = "TestInfo to verify search navigation")
+    @Test(groups = {"SmokeTest", "RegressionTest", "allure"}, description = "TestInfo to verify search navigation")
     public void testSearchNavigation() {
         TestInfo.given("Searching for product");
         TestInfo.given("Searching for product in the next page");
