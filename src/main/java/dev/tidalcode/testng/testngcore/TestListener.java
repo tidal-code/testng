@@ -214,8 +214,8 @@ public class TestListener implements ITestListener, IHookable {
     private void publishResultToZephyrScale(ITestResult result) {
         String zephyrResultUpdate = PropertiesFinder.getProperty("zephyr.results.update");
 
-//        logger.info("Publishing results to Zephyr");
-//        logger.info("Zephyr result publish (true/false) {}", zephyrResultUpdate);
+        logger.info("Publishing results to Zephyr");
+        logger.info("Zephyr result publish (true/false) {}", zephyrResultUpdate);
 
         if (isNotNullOrEmpty(zephyrResultUpdate)  && zephyrResultUpdate.equals("true") ) {
 
