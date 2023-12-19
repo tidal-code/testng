@@ -18,11 +18,11 @@ public class DataFormatter {
                 Object dataProviderObject = parameters[0];
                 Field field = parameters[0].getClass().getDeclaredField("testCaseName");
                 field.setAccessible(true);
-                String testCaseName = (String) field.get(dataProviderObject);
-                return testDescription +" "+testCaseName;
+                return (String) field.get(dataProviderObject);
             } catch (IllegalAccessException | NoSuchFieldException ex) {
                 //ERROR IGNORED
             }
+            //return existing description to prevent empty scenario names
             return testDescription;
         }
         Pattern pattern = Pattern.compile(stringToReplacePattern);
