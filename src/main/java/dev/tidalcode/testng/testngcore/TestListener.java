@@ -54,6 +54,7 @@ public class TestListener implements ITestListener, IHookable {
             String currentDescription = DataFormatter.formatTestDescription(result.getMethod().getDescription(), result.getParameters());
             TestScenario.setTestDescription(currentDescription);
             result.setAttribute("customNameAttribute", currentDescription);
+            logger.info("Setting scenario name to "+currentDescription);
             ScenarioInfo.setScenarioName(currentDescription);
         } else {
             result.setAttribute("customNameAttribute", result.getMethod().getDescription());
